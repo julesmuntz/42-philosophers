@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:41:02 by julmuntz          #+#    #+#             */
-/*   Updated: 2022/12/15 11:41:02 by julmuntz         ###   ########.fr       */
+/*   Updated: 2022/12/19 17:24:00 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@
 
 typedef struct s_stoic
 {
-	int				*philo;
+	pthread_t		*thread;
 	int				number_of_philosophers;
 	int				time_to_die;
 	int				time_to_eat;

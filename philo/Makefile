@@ -12,8 +12,7 @@
 
 SRCDIR		= 	src/
 SRC			=	philo.c				\
-				p_atoi.c			\
-				p_strcmp.c			\
+				utils.c				\
 
 # B_SRCDIR	= 	bonus/
 # B_SRC		=	philo_bonus.c		\

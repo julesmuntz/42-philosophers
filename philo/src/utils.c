@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   p_atoi.c                                           :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 13:20:42 by julmuntz          #+#    #+#             */
-/*   Updated: 2022/12/15 14:58:14 by julmuntz         ###   ########.fr       */
+/*   Updated: 2022/12/19 16:52:56 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,4 +39,14 @@ int	p_atoi(t_stoic *data, char *s)
 	if (res == 0 || minus == TRUE)
 		return (data->error = "Less than 1", ERROR);
 	return (res);
+}
+
+int	p_strcmp(char *s1, char *s2)
+{
+	int	i;
+
+	i = 0;
+	while (s1[i] && s1[i] == s2[i])
+		i++;
+	return (s1[i] - s2[i]);
 }
