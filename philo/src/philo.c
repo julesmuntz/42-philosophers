@@ -6,18 +6,26 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:39:35 by julmuntz          #+#    #+#             */
-/*   Updated: 2022/12/19 17:23:24 by julmuntz         ###   ########.fr       */
+/*   Updated: 2022/12/24 14:16:18 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static void	*routine(void *ptr)
+void	*routine(void *ptr)
 {
-	(void)ptr;
-	printf("Starts\n");
-	sleep(1);
-	printf("Ends\n");
+	t_stoic	*data;
+	int		i;
+
+	i = 0;
+	data = (t_stoic *)ptr;
+	while (i < 100000)
+	{
+		pthread_mutex_lock(&data->mutex);
+		data->test_var++;
+		pthread_mutex_unlock(&data->mutex);
+		i++;
+	}
 	return (NULL);
 }
 
@@ -35,35 +43,38 @@ static void	invalid_argument(t_stoic *data, int id)
 	return ;
 }
 
-static void	create_threads(t_stoic *data)
+void	create_threads(t_stoic *data)
 {
 	int	i;
-	int	y;
 
 	i = 0;
+	data->test_var = 0;
+	pthread_mutex_init(&data->mutex, NULL);
 	while (i != data->number_of_philosophers)
 	{
-		if (pthread_create(&data->thread[i], NULL, &routine, NULL) != 0)
+		if (pthread_create(&data->thread[i], NULL, &routine, data) != 0)
 			break ;
 		i++;
 	}
-	y = 0;
-	while (y != i)
+	i = 0;
+	while (i != data->number_of_philosophers)
 	{
-		if (pthread_join(data->thread[y], NULL) != 0)
+		if (pthread_join(data->thread[i], NULL) != 0)
 			break ;
-		y++;
+		i++;
 	}
+	pthread_mutex_destroy(&data->mutex);
 }
 
-static int	init(t_stoic *data, int arc, char **arv)
+int	init(t_stoic *data, int arc, char **arv)
 {
 	int		i;
 
 	i = 1;
 	data->stops = FALSE;
 	if (arc < 5 || arc > 6)
-		return (printf("Error\n4 or 5 arguments required.\n"), ERROR);
+		return (printf("Error\nInvalid number of arguments. \
+It must be 4 or 5, not %d.\n", (arc - 1)), ERROR);
 	while (i < arc)
 	{
 		if ((p_atoi(data, arv[i]) == ERROR))
@@ -92,6 +103,7 @@ int	main(int arc, char **arv)
 	if (init(&data, arc, arv) != 0)
 		return (0);
 	create_threads(&data);
+	printf("%d\n", data.test_var);
 	free(data.thread);
 	return (0);
 }

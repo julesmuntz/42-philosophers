@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:41:02 by julmuntz          #+#    #+#             */
-/*   Updated: 2022/12/19 17:24:00 by julmuntz         ###   ########.fr       */
+/*   Updated: 2022/12/24 14:10:58 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@
 
 typedef struct s_stoic
 {
-	pthread_t		*thread;
 	int				number_of_philosophers;
 	int				time_to_die;
 	int				time_to_eat;
@@ -37,12 +36,14 @@ typedef struct s_stoic
 	int				number_of_times_each_philosopher_must_eat;
 	char			*error;
 	int				stops;
+	pthread_t		*thread;
+	pthread_mutex_t	mutex;
+	int				test_var;
 }	t_stoic;
 
 ////////////////////////////////////////////////////////////////
-/////////////  U T I L I T I E S  //////////////////////////////////////
+/////////////  E S S E N T I A L S  ////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
 int		p_atoi(t_stoic *data, char *s);
 int		p_strcmp(char *s1, char *s2);
 
