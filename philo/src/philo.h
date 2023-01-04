@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:41:02 by julmuntz          #+#    #+#             */
-/*   Updated: 2022/12/24 14:10:58 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/04 22:28:00 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,26 @@ typedef struct s_stoic
 	pthread_t		*thread;
 	pthread_mutex_t	mutex;
 	int				test_var;
+	enum e_fork		*fork;
 }	t_stoic;
+
+typedef enum e_philo
+{
+	THINKING,
+	HUNGRY,
+	EATING
+}	t_philo;
+
+typedef enum e_fork
+{
+	BUSY,
+	AVAILABLE
+}	t_fork;
+
+////////////////////////////////////////////////////////////////
+/////////////  R  O  U  T  I  N  E  ////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+void	*routine(void *ptr);
 
 ////////////////////////////////////////////////////////////////
 /////////////  E S S E N T I A L S  ////////////////////////////////////

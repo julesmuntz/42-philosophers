@@ -6,28 +6,11 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:39:35 by julmuntz          #+#    #+#             */
-/*   Updated: 2022/12/24 14:16:18 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/04 22:22:50 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-void	*routine(void *ptr)
-{
-	t_stoic	*data;
-	int		i;
-
-	i = 0;
-	data = (t_stoic *)ptr;
-	while (i < 100000)
-	{
-		pthread_mutex_lock(&data->mutex);
-		data->test_var++;
-		pthread_mutex_unlock(&data->mutex);
-		i++;
-	}
-	return (NULL);
-}
 
 static void	invalid_argument(t_stoic *data, int id)
 {

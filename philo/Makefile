@@ -6,13 +6,14 @@
 #    By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/13 22:08:46 by julmuntz          #+#    #+#              #
-#    Updated: 2022/12/20 12:09:10 by julmuntz         ###   ########.fr        #
+#    Updated: 2023/01/04 22:29:39 by julmuntz         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SRCDIR		= 	src/
 SRC			=	philo.c				\
 				utils.c				\
+				routine.c			\
 
 # B_SRCDIR	= 	bonus/
 # B_SRC		=	philo_bonus.c		\
