@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:39:35 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/04 22:22:50 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/06 13:45:35 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,14 +35,14 @@ void	create_threads(t_stoic *data)
 	pthread_mutex_init(&data->mutex, NULL);
 	while (i != data->number_of_philosophers)
 	{
-		if (pthread_create(&data->thread[i], NULL, &routine, data) != 0)
+		if (pthread_create(&data->philo[i], NULL, &routine, data) != 0)
 			break ;
 		i++;
 	}
 	i = 0;
 	while (i != data->number_of_philosophers)
 	{
-		if (pthread_join(data->thread[i], NULL) != 0)
+		if (pthread_join(data->philo[i], NULL) != 0)
 			break ;
 		i++;
 	}
@@ -73,20 +73,25 @@ It must be 4 or 5, not %d.\n", (arc - 1)), ERROR);
 	data->time_to_sleep = p_atoi(data, arv[4]);
 	if (arc == 6)
 		data->number_of_times_each_philosopher_must_eat = p_atoi(data, arv[5]);
-	data->thread = malloc(sizeof(int) * data->number_of_philosophers);
-	if (!data->thread)
+	data->philo = malloc(sizeof(int) * data->number_of_philosophers);
+	if (!data->philo)
 		return (ERROR);
 	return (0);
 }
 
 int	main(int arc, char **arv)
 {
+	int		i;
 	t_stoic	data;
 
 	if (init(&data, arc, arv) != 0)
 		return (0);
+	i = 0;
+	data.fork = malloc(sizeof(int) * data.number_of_philosophers);
+	while (++i <= data.number_of_philosophers)
+		data.fork[i] = AVAILABLE;
 	create_threads(&data);
 	printf("%d\n", data.test_var);
-	free(data.thread);
+	free(data.philo);
 	return (0);
 }
