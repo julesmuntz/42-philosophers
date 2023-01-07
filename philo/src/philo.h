@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:41:02 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/06 13:45:19 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/07 21:11:58 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,9 @@ typedef struct s_stoic
 	int				stops;
 	pthread_t		*philo;
 	pthread_mutex_t	mutex;
-	int				test_var;
 	enum e_philo	*status;
 	enum e_fork		*fork;
+	int				time;
 }	t_stoic;
 
 typedef enum e_philo
@@ -66,5 +66,6 @@ void	*routine(void *ptr);
 ////////////////////////////////////////////////////////////////////////////////
 int		p_atoi(t_stoic *data, char *s);
 int		p_strcmp(char *s1, char *s2);
+void	msleep(int ms);
 
 #endif

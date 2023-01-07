@@ -6,7 +6,7 @@
 #    By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/13 22:08:46 by julmuntz          #+#    #+#              #
-#    Updated: 2023/01/04 22:29:39 by julmuntz         ###   ########.fr        #
+#    Updated: 2023/01/07 20:47:13 by julmuntz         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,6 +14,7 @@ SRCDIR		= 	src/
 SRC			=	philo.c				\
 				utils.c				\
 				routine.c			\
+				time.c				\
 
 # B_SRCDIR	= 	bonus/
 # B_SRC		=	philo_bonus.c		\
@@ -40,10 +41,10 @@ $(OBJDIR)%.o:	$(SRCDIR)%.c
 # 					$(CC) $(CFLAGS) -c $< -o $@
 
 $(NAME):		$(OBJ)
-					@$(CC) -g $^ -o $@
+					@$(CC) -g $^ -pthread -o $@
 
 # $(B_NAME):		$(B_OBJ)
-# 					@$(CC) -g $^ -o $@
+# 					@$(CC) -g $^ -pthread -o $@
 
 all:			$(NAME) # $(B_NAME)
 

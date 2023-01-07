@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/04 22:23:19 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/06 13:53:12 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/07 20:54:56 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,34 +50,40 @@ int	drop_forks(int philo_id, t_stoic *data)
 	return (FALSE);
 }
 
-void	decide(int philo_id, t_stoic *data)
-{
-	if (take_forks(philo_id, data) == TRUE)
-		data->status = EATING;
-	else if (drop_forks(philo_id, data) == TRUE)
-		data->status = THINKING;
-}
+// void	decide(int philo_id, t_stoic *data)
+// {
+// 	if (take_forks(philo_id, NULL) == TRUE)
+// 		data->status[philo_id] = EATING;
+// 	else if (drop_forks(philo_id, NULL) == TRUE)
+// 		data->status[philo_id] = THINKING;
+// }
 
 void	*routine(void *ptr)
 {
 	t_stoic	*data;
 	int		i;
+	int		lap;
 
 	i = 1;
+	lap = 1;
 	data = (t_stoic *)ptr;
-	while (TRUE)
+	if (!data->number_of_times_each_philosopher_must_eat)
+		lap = data->number_of_times_each_philosopher_must_eat + 1;
+	while (lap <= data->number_of_times_each_philosopher_must_eat)
 	{
+		i = 1;
 		while (i <= data->number_of_philosophers)
 		{
-			if (take_forks(i, &data) == TRUE)
+			if (take_forks(i, data) == TRUE)
 			{
 				pthread_mutex_lock(&data->mutex);
-				data->test_var++;
+				printf("%d %d has taken a fork\n", data->time, i);
 				pthread_mutex_unlock(&data->mutex);
 			}
+			msleep(data->time_to_eat);
 			i++;
 		}
-		i = 1;
+		lap++;
 	}
 	return (NULL);
 }

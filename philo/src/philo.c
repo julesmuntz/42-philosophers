@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:39:35 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/06 13:45:35 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/07 21:19:51 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ void	create_threads(t_stoic *data)
 	int	i;
 
 	i = 0;
-	data->test_var = 0;
 	pthread_mutex_init(&data->mutex, NULL);
 	while (i != data->number_of_philosophers)
 	{
@@ -51,7 +50,7 @@ void	create_threads(t_stoic *data)
 
 int	init(t_stoic *data, int arc, char **arv)
 {
-	int		i;
+	int	i;
 
 	i = 1;
 	data->stops = FALSE;
@@ -91,7 +90,6 @@ int	main(int arc, char **arv)
 	while (++i <= data.number_of_philosophers)
 		data.fork[i] = AVAILABLE;
 	create_threads(&data);
-	printf("%d\n", data.test_var);
 	free(data.philo);
 	return (0);
 }
