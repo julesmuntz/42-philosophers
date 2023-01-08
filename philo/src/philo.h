@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:41:02 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/07 21:11:58 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/08 14:35:45 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,9 @@ typedef struct s_stoic
 	pthread_mutex_t	mutex;
 	enum e_philo	*status;
 	enum e_fork		*fork;
-	int				time;
+	struct timeval	start;
+	struct timeval	present;
+	unsigned long	elapsed;
 }	t_stoic;
 
 typedef enum e_philo

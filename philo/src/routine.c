@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/04 22:23:19 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/07 20:54:56 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/08 16:27:39 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,14 +50,6 @@ int	drop_forks(int philo_id, t_stoic *data)
 	return (FALSE);
 }
 
-// void	decide(int philo_id, t_stoic *data)
-// {
-// 	if (take_forks(philo_id, NULL) == TRUE)
-// 		data->status[philo_id] = EATING;
-// 	else if (drop_forks(philo_id, NULL) == TRUE)
-// 		data->status[philo_id] = THINKING;
-// }
-
 void	*routine(void *ptr)
 {
 	t_stoic	*data;
@@ -67,22 +59,35 @@ void	*routine(void *ptr)
 	i = 1;
 	lap = 1;
 	data = (t_stoic *)ptr;
-	if (!data->number_of_times_each_philosopher_must_eat)
-		lap = data->number_of_times_each_philosopher_must_eat + 1;
-	while (lap <= data->number_of_times_each_philosopher_must_eat)
+	while (TRUE)
 	{
 		i = 1;
+		if (data->elapsed >= (unsigned long)&data->time_to_die)
+		{
+			printf("%lu\t%d died\n", data->elapsed, i);
+			break ;
+		}
 		while (i <= data->number_of_philosophers)
 		{
+			gettimeofday(&data->present, 0);
+			data->elapsed = (data->present.tv_sec - data->start.tv_sec) * 1000;
+			data->elapsed += (data->present.tv_usec - data->start.tv_usec)
+				/ 1000;
 			if (take_forks(i, data) == TRUE)
 			{
+				printf("%lu\t%d has taken a fork\n", data->elapsed, i);
 				pthread_mutex_lock(&data->mutex);
-				printf("%d %d has taken a fork\n", data->time, i);
+				printf("%lu\t%d is eating\n", data->elapsed, i);
+				msleep(data->time_to_eat);
 				pthread_mutex_unlock(&data->mutex);
+				drop_forks(i, data);
 			}
-			msleep(data->time_to_eat);
+			else if (take_forks(i, data) == FALSE)
+				printf("%lu\t%d is thinking\n", data->elapsed, i);
 			i++;
 		}
+		if (lap == data->number_of_times_each_philosopher_must_eat)
+			break ;
 		lap++;
 	}
 	return (NULL);

@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:39:35 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/07 21:19:51 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/08 16:28:40 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,10 +86,12 @@ int	main(int arc, char **arv)
 	if (init(&data, arc, arv) != 0)
 		return (0);
 	i = 0;
+	gettimeofday(&data.start, 0);
 	data.fork = malloc(sizeof(int) * data.number_of_philosophers);
 	while (++i <= data.number_of_philosophers)
 		data.fork[i] = AVAILABLE;
 	create_threads(&data);
+	printf("%lums\n", data.elapsed);
 	free(data.philo);
 	return (0);
 }
