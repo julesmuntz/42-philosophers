@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/04 22:23:19 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/18 19:38:55 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/21 16:28:54 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,10 +43,13 @@ void	*routine(void *ptr)
 	int		lap;
 
 	i = 1;
-	lap = 1;
+	lap = 0;
 	data = (t_stoic *)ptr;
-	while (TRUE)
+	while ((TRUE) || (lap != data->number_of_times_each_philosopher_must_eat))
 	{
+		if (lap == data->number_of_times_each_philosopher_must_eat)
+			break ;
+		lap++;
 		if (data->elapsed >= (unsigned long)&data->time_to_die)
 		{
 			printf("%lu\t%d died\n", data->elapsed, i);
@@ -55,21 +58,18 @@ void	*routine(void *ptr)
 		i = 1;
 		while (i <= data->number_of_philosophers)
 		{
+			get_time(data);
 			forks_pos(i, data);
-			gettimeofday(&data->present, 0);
-			data->elapsed = (data->present.tv_sec - data->start.tv_sec) * 1000;
-			data->elapsed += (data->present.tv_usec - data->start.tv_usec)
-				/ 1000;
 			data->status[i] = THINKING;
 			printf("%lu\t%d is thinking\n", data->elapsed, i);
 			if (take_forks(data) == TRUE)
 			{
 				take_forks(data);
 				pthread_mutex_lock(&data->forks[data->left_fork]);
-				gettimeofday(&data->present, 0);
+				get_time(data);
 				printf("%lu\t%d has taken a fork\n", data->elapsed, i);
 				pthread_mutex_lock(&data->forks[data->right_fork]);
-				gettimeofday(&data->present, 0);
+				get_time(data);
 				printf("%lu\t%d has taken a fork\n", data->elapsed, i);
 				pthread_mutex_lock(&data->mutex);
 				data->status[i] = EATING;
@@ -82,9 +82,6 @@ void	*routine(void *ptr)
 			}
 			i++;
 		}
-		if (lap == data->number_of_times_each_philosopher_must_eat)
-			break ;
-		lap++;
 	}
 	return (NULL);
 }
