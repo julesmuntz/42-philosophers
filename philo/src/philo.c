@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:39:35 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/18 19:29:13 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/21 19:38:51 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,32 +31,36 @@ void	create_threads(t_stoic *data)
 	int	i;
 
 	i = 0;
-	pthread_mutex_init(&data->mutex, NULL);
+	pthread_mutex_init(&data->lock, NULL);
 	while (i != data->number_of_philosophers)
 	{
-		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
+		if (pthread_mutex_init(&data->philo.left_fork, NULL) != 0)
+			break ;
+		if (pthread_mutex_init(&data->philo.right_fork, NULL) != 0)
 			break ;
 		i++;
 	}
 	i = 0;
 	while (i != data->number_of_philosophers)
 	{
-		if (pthread_create(&data->philo[i], NULL, &routine, data) != 0)
+		if (pthread_create(&data->philos[i], NULL, &routine, data) != 0)
 			break ;
 		i++;
 	}
 	i = 0;
 	while (i != data->number_of_philosophers)
 	{
-		if (pthread_join(data->philo[i], NULL) != 0)
+		if (pthread_join(data->philos[i], NULL) != 0)
 			break ;
 		i++;
 	}
 	i = 0;
-	pthread_mutex_destroy(&data->mutex);
+	pthread_mutex_destroy(&data->lock);
 	while (i != data->number_of_philosophers)
 	{
-		if (pthread_mutex_destroy(&data->forks[i]) != 0)
+		if (pthread_mutex_destroy(&data->philo.left_fork) != 0)
+			break ;
+		if (pthread_mutex_destroy(&data->philo.right_fork) != 0)
 			break ;
 		i++;
 	}
@@ -81,13 +85,13 @@ It must be 4 or 5, not %d.\n", (arc - 1)), ERROR);
 	if (data->stops == TRUE)
 		return (ERROR);
 	data->number_of_philosophers = p_atoi(data, arv[1]);
-	data->time_to_die = p_atoi(data, arv[2]);
-	data->time_to_eat = p_atoi(data, arv[3]);
-	data->time_to_sleep = p_atoi(data, arv[4]);
+	data->philo.time_to_die = p_atoi(data, arv[2]);
+	data->philo.time_to_eat = p_atoi(data, arv[3]);
+	data->philo.time_to_sleep = p_atoi(data, arv[4]);
 	if (arc == 6)
-		data->number_of_times_each_philosopher_must_eat = p_atoi(data, arv[5]);
-	data->philo = malloc(sizeof(int) * data->number_of_philosophers);
-	if (!data->philo)
+		data->philo.ate_n_times = p_atoi(data, arv[5]);
+	data->philos = malloc(sizeof(int) * data->number_of_philosophers);
+	if (!data->philo.status)
 		return (ERROR);
 	return (0);
 }
@@ -96,21 +100,20 @@ int	main(int arc, char **arv)
 {
 	int		i;
 	t_stoic	data;
+	t_philo	philo[data.number_of_philosophers];
 
 	if (init(&data, arc, arv) != 0)
 		return (0);
 	gettimeofday(&data.start, 0);
-	i = 0;
-	data.status = malloc(sizeof(int) * data.number_of_philosophers);
-	while (++i <= data.number_of_philosophers)
-		data.status[i] = THINKING;
-	i = 0;
+	data.philo.status = THINKING;
+	memset(philo, 0, (size_t)data.number_of_philosophers * sizeof(data.philo));
 	data.fork_status = malloc(sizeof(int) * data.number_of_philosophers);
+	i = 0;
 	while (++i <= data.number_of_philosophers)
-		data.fork_status[i] = AVAILABLE;
+		data.fork_status = AVAILABLE;
 	create_threads(&data);
 	free(data.fork_status);
-	free(data.status);
-	free(data.philo);
+	free(data.philo.status);
+	free(data.philos);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:41:02 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/21 16:25:27 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/21 19:38:54 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,37 +27,42 @@
 # include <sys/time.h>
 # include <pthread.h>
 
-typedef struct s_stoic
+typedef struct s_philo
 {
-	int				number_of_philosophers;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int				number_of_times_each_philosopher_must_eat;
+	int				ate_n_times;
+
+	enum e_status	status;
+
+	pthread_mutex_t	left_fork;
+	pthread_mutex_t	right_fork;
+}	t_philo;
+
+typedef struct s_stoic
+{
+	int				number_of_philosophers;
 
 	char			*error;
 	int				stops;
 
-	pthread_t		*philo;
-	pthread_mutex_t	mutex;
-	enum e_philo	*status;
-
-	pthread_mutex_t	forks[256];
+	pthread_mutex_t	lock;
+	pthread_t		*philos;
 	enum e_fork		*fork_status;
-	int				left_fork;
-	int				right_fork;
 
 	struct timeval	start;
 	struct timeval	present;
 	unsigned long	elapsed;
+	struct s_philo	philo;
 }	t_stoic;
 
-typedef enum e_philo
+typedef enum e_status
 {
 	THINKING,
 	HUNGRY,
 	EATING
-}	t_philo;
+}	t_status;
 
 typedef enum e_fork
 {
