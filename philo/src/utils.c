@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 13:20:42 by julmuntz          #+#    #+#             */
-/*   Updated: 2022/12/19 16:52:56 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/18 17:30:00 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,4 +49,13 @@ int	p_strcmp(char *s1, char *s2)
 	while (s1[i] && s1[i] == s2[i])
 		i++;
 	return (s1[i] - s2[i]);
+}
+
+void	forks_pos(int philo_id, t_stoic *data)
+{
+	data->right_fork = philo_id;
+	if (philo_id == 1)
+		data->left_fork = data->number_of_philosophers;
+	else
+		data->left_fork = philo_id - 1;
 }

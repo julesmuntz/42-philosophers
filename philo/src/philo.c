@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:39:35 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/08 16:28:40 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/18 19:29:13 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,13 @@ void	create_threads(t_stoic *data)
 	pthread_mutex_init(&data->mutex, NULL);
 	while (i != data->number_of_philosophers)
 	{
+		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
+			break ;
+		i++;
+	}
+	i = 0;
+	while (i != data->number_of_philosophers)
+	{
 		if (pthread_create(&data->philo[i], NULL, &routine, data) != 0)
 			break ;
 		i++;
@@ -45,7 +52,14 @@ void	create_threads(t_stoic *data)
 			break ;
 		i++;
 	}
+	i = 0;
 	pthread_mutex_destroy(&data->mutex);
+	while (i != data->number_of_philosophers)
+	{
+		if (pthread_mutex_destroy(&data->forks[i]) != 0)
+			break ;
+		i++;
+	}
 }
 
 int	init(t_stoic *data, int arc, char **arv)
@@ -85,13 +99,18 @@ int	main(int arc, char **arv)
 
 	if (init(&data, arc, arv) != 0)
 		return (0);
-	i = 0;
 	gettimeofday(&data.start, 0);
-	data.fork = malloc(sizeof(int) * data.number_of_philosophers);
+	i = 0;
+	data.status = malloc(sizeof(int) * data.number_of_philosophers);
 	while (++i <= data.number_of_philosophers)
-		data.fork[i] = AVAILABLE;
+		data.status[i] = THINKING;
+	i = 0;
+	data.fork_status = malloc(sizeof(int) * data.number_of_philosophers);
+	while (++i <= data.number_of_philosophers)
+		data.fork_status[i] = AVAILABLE;
 	create_threads(&data);
-	printf("%lums\n", data.elapsed);
+	free(data.fork_status);
+	free(data.status);
 	free(data.philo);
 	return (0);
 }

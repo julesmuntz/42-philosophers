@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:41:02 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/08 14:35:45 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/21 13:21:06 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,19 @@ typedef struct s_stoic
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				number_of_times_each_philosopher_must_eat;
+
 	char			*error;
 	int				stops;
+
 	pthread_t		*philo;
 	pthread_mutex_t	mutex;
 	enum e_philo	*status;
-	enum e_fork		*fork;
+
+	pthread_mutex_t	forks[256];
+	enum e_fork		*fork_status;
+	int				left_fork;
+	int				right_fork;
+
 	struct timeval	start;
 	struct timeval	present;
 	unsigned long	elapsed;
@@ -62,6 +69,7 @@ typedef enum e_fork
 /////////////  R  O  U  T  I  N  E  ////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 void	*routine(void *ptr);
+void	forks_pos(int philo_id, t_stoic *data);
 
 ////////////////////////////////////////////////////////////////
 /////////////  E S S E N T I A L S  ////////////////////////////////////
