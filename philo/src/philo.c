@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:39:35 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/23 16:24:20 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/23 22:21:01 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,6 @@ int	create_threads(t_stoic *data, t_philo *philo)
 {
 	int	i;
 
-	if (pthread_mutex_init(&data->lock, NULL))
-		return (1);
 	i = 0;
 	while (i != data->number_of_philosophers)
 	{
@@ -42,22 +40,18 @@ int	create_threads(t_stoic *data, t_philo *philo)
 		if (pthread_mutex_init(&philo[i].right_fork, NULL))
 			return (1);
 		if (philo[i].id == 1)
-			philo[0].left_fork = &philo[data->number_of_philosophers - 1].right_fork;
+			philo[0].left_fork
+				= &philo[data->number_of_philosophers - 1].right_fork;
 		else
 			philo[i].left_fork = &philo[i - 1].right_fork;
 		if (pthread_create(&philo[i].philosopher, NULL, &routine, &philo[i]))
-			return (1);
+			pthread_mutex_destroy(&philo[i].right_fork);
 		i++;
 	}
-	i = 0;
-	while (i != data->number_of_philosophers)
-	{
+	i = 1;
+	while (++i != data->number_of_philosophers)
 		if (pthread_join(philo[i].philosopher, NULL))
 			return (1);
-		i++;
-	}
-	if (pthread_mutex_destroy(&data->lock))
-		return (1);
 	return (0);
 }
 
@@ -96,10 +90,15 @@ int	main(int arc, char **arv)
 
 	if (init(&data, arc, arv))
 		return (0);
+	gettimeofday(&data.launch_time, 0);
+	if (pthread_mutex_init(&data.lock, NULL))
+		return (1);
 	philo = malloc(sizeof(t_philo) * data.number_of_philosophers);
-	philo->left_fork = malloc(sizeof(pthread_mutex_t) * data.number_of_philosophers);
-	gettimeofday(&data.start, 0);
+	if (!philo)
+		return (pthread_mutex_destroy(&data.lock), 1);
 	create_threads(&data, philo);
+	if (pthread_mutex_destroy(&data.lock))
+		return (1);
 	free(philo);
 	return (0);
 }

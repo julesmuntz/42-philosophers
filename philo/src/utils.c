@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 13:20:42 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/23 16:48:30 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/23 22:23:05 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,27 +53,27 @@ int	p_strcmp(char *s1, char *s2)
 
 void	print_status(t_philo *philo, int status)
 {
-	gettimeofday(&philo->data->present, 0);
-	philo->data->elapsed = (philo->data->present.tv_sec - philo->data->start.tv_sec) * 1000;
-	philo->data->elapsed += (philo->data->present.tv_usec - philo->data->start.tv_usec) / 1000;
-	if (status == THINKING)
-	{
-		// pthread_mutex_lock(&philo->data->lock);
-		printf("%lld\t%d\t%s.\n", philo->data->elapsed, philo->id, "is thinking");
-		// pthread_mutex_unlock(&philo->data->lock);
-	}
+	gettimeofday(&philo->data->current_time, 0);
+	pthread_mutex_lock(&philo->data->lock);
+	if (status == TAKING_A_FORK)
+		printf("%d\t%d\t%s\n", get_time(philo->data->launch_time,
+				philo->data->current_time), philo->id, "has taken a fork");
+	else if (status == THINKING)
+		printf("%d\t%d\t%s\n", get_time(philo->data->launch_time,
+				philo->data->current_time), philo->id, "is thinking");
 	else if (status == EATING)
 	{
-		// pthread_mutex_lock(&philo->data->lock);
-		printf("%lld\t%d\t%s.\n", philo->data->elapsed, philo->id, "is eating");
+		gettimeofday(&philo->last_meal, 0);
+		printf("%d\t%d\t%s\n", get_time(philo->data->launch_time,
+				philo->data->current_time), philo->id, "is eating");
 		usleep(philo->data->time_to_eat * 1000);
-		// pthread_mutex_unlock(&philo->data->lock);
+		philo->ate_n_times++;
 	}
 	else if (status == SLEEPING)
 	{
-		// pthread_mutex_lock(&philo->data->lock);
-		printf("%lld\t%d\t%s.\n", philo->data->elapsed, philo->id, "is sleeping");
+		printf("%d\t%d\t%s\n", get_time(philo->data->launch_time,
+				philo->data->current_time), philo->id, "is sleeping");
 		usleep(philo->data->time_to_sleep * 1000);
-		// pthread_mutex_unlock(&philo->data->lock);
 	}
+	pthread_mutex_unlock(&philo->data->lock);
 }

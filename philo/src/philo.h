@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:41:02 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/23 16:10:19 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/23 22:28:39 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # define THINKING -3
 # define EATING -4
 # define SLEEPING -5
+# define TAKING_A_FORK -6
 
 # include <stdio.h>
 # include <unistd.h>
@@ -42,9 +43,8 @@ typedef struct s_stoic
 	char			*error;
 	int				stops;
 	int				died;
-	struct timeval	start;
-	struct timeval	present;
-	long long		elapsed;
+	struct timeval	launch_time;
+	struct timeval	current_time;
 }	t_stoic;
 
 typedef struct s_philo
@@ -60,13 +60,11 @@ typedef struct s_philo
 
 /////////////  R  O  U  T  I  N  E  ///////////////////////////////////////////
 void	*routine(void *ptr);
-void	forks_id(int philo_id, t_stoic *data);
+int		get_time(struct timeval launch_time, struct timeval current_time);
+void	print_status(t_philo *philo, int status);
 
 /////////////  U  T  I  L  S  /////////////////////////////////////////////////
 int		p_atoi(t_stoic *data, char *s);
 int		p_strcmp(char *s1, char *s2);
-void	get_time(t_stoic *data);
-void	msleep(int ms);
-void	print_status(t_philo *philo, int status);
 
 #endif

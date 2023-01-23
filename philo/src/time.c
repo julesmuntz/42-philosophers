@@ -6,15 +6,16 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 20:28:53 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/23 16:21:46 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/23 22:23:50 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	get_time(t_stoic *data)
+int	get_time(struct timeval launch_time, struct timeval current_time)
 {
-	gettimeofday(&data->present, 0);
-	data->elapsed = (data->present.tv_sec - data->start.tv_sec) * 1000;
-	data->elapsed += (data->present.tv_usec - data->start.tv_usec) / 1000;
+	if (launch_time.tv_sec == current_time.tv_sec)
+		return ((current_time.tv_usec - launch_time.tv_usec) / 1000);
+	return ((((current_time.tv_sec - launch_time.tv_sec - 1) * 1000000)
+			+ current_time.tv_usec + 999999 - launch_time.tv_usec) / 1000);
 }
