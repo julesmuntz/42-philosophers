@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:41:02 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/21 19:38:54 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/23 16:10:19 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 # define TRUE 1
 # define FALSE 0
 # define ERROR -2
+# define THINKING -3
+# define EATING -4
+# define SLEEPING -5
 
 # include <stdio.h>
 # include <unistd.h>
@@ -26,62 +29,44 @@
 # include <fcntl.h>
 # include <sys/time.h>
 # include <pthread.h>
-
-typedef struct s_philo
-{
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
-	int				ate_n_times;
-
-	enum e_status	status;
-
-	pthread_mutex_t	left_fork;
-	pthread_mutex_t	right_fork;
-}	t_philo;
+# include <string.h>
 
 typedef struct s_stoic
 {
 	int				number_of_philosophers;
-
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				number_of_meals;
+	pthread_mutex_t	lock;
 	char			*error;
 	int				stops;
-
-	pthread_mutex_t	lock;
-	pthread_t		*philos;
-	enum e_fork		*fork_status;
-
+	int				died;
 	struct timeval	start;
 	struct timeval	present;
-	unsigned long	elapsed;
-	struct s_philo	philo;
+	long long		elapsed;
 }	t_stoic;
 
-typedef enum e_status
+typedef struct s_philo
 {
-	THINKING,
-	HUNGRY,
-	EATING
-}	t_status;
+	t_stoic			*data;
+	pthread_t		philosopher;
+	int				id;
+	int				ate_n_times;
+	struct timeval	last_meal;
+	pthread_mutex_t	right_fork;
+	pthread_mutex_t	*left_fork;
+}	t_philo;
 
-typedef enum e_fork
-{
-	BUSY,
-	AVAILABLE
-}	t_fork;
-
-////////////////////////////////////////////////////////////////
-/////////////  R  O  U  T  I  N  E  ////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+/////////////  R  O  U  T  I  N  E  ///////////////////////////////////////////
 void	*routine(void *ptr);
-void	forks_pos(int philo_id, t_stoic *data);
-void	get_time(t_stoic *data);
+void	forks_id(int philo_id, t_stoic *data);
 
-////////////////////////////////////////////////////////////////
-/////////////  E S S E N T I A L S  ////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+/////////////  U  T  I  L  S  /////////////////////////////////////////////////
 int		p_atoi(t_stoic *data, char *s);
 int		p_strcmp(char *s1, char *s2);
+void	get_time(t_stoic *data);
 void	msleep(int ms);
+void	print_status(t_philo *philo, int status);
 
 #endif

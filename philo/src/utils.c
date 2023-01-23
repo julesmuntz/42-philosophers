@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 13:20:42 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/21 19:25:17 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/23 16:48:30 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,18 +51,29 @@ int	p_strcmp(char *s1, char *s2)
 	return (s1[i] - s2[i]);
 }
 
-void	forks_pos(int philo_id, t_stoic *data)
+void	print_status(t_philo *philo, int status)
 {
-	int	i;
-
-	i = 1;
-	while (data->philo[i] <= data->number_of_philosophers)
+	gettimeofday(&philo->data->present, 0);
+	philo->data->elapsed = (philo->data->present.tv_sec - philo->data->start.tv_sec) * 1000;
+	philo->data->elapsed += (philo->data->present.tv_usec - philo->data->start.tv_usec) / 1000;
+	if (status == THINKING)
 	{
-		data->philo.right_fork = philo_id;
-		i++;
+		// pthread_mutex_lock(&philo->data->lock);
+		printf("%lld\t%d\t%s.\n", philo->data->elapsed, philo->id, "is thinking");
+		// pthread_mutex_unlock(&philo->data->lock);
 	}
-	if (philo_id == 1)
-		data->philo.left_fork = data->number_of_philosophers;
-	else
-		data->philo.left_fork = philo_id - 1;
+	else if (status == EATING)
+	{
+		// pthread_mutex_lock(&philo->data->lock);
+		printf("%lld\t%d\t%s.\n", philo->data->elapsed, philo->id, "is eating");
+		usleep(philo->data->time_to_eat * 1000);
+		// pthread_mutex_unlock(&philo->data->lock);
+	}
+	else if (status == SLEEPING)
+	{
+		// pthread_mutex_lock(&philo->data->lock);
+		printf("%lld\t%d\t%s.\n", philo->data->elapsed, philo->id, "is sleeping");
+		usleep(philo->data->time_to_sleep * 1000);
+		// pthread_mutex_unlock(&philo->data->lock);
+	}
 }
