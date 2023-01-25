@@ -6,7 +6,7 @@
 #    By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/13 22:08:46 by julmuntz          #+#    #+#              #
-#    Updated: 2023/01/25 11:41:55 by julmuntz         ###   ########.fr        #
+#    Updated: 2023/01/25 14:06:10 by julmuntz         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,6 @@ SRCDIR		= 	src/
 SRC			=	philo.c				\
 				utils.c				\
 				routine.c			\
-				time.c				\
 
 OBJDIR		= 	obj/
 OBJ			= 	$(addprefix $(OBJDIR), $(SRC:.c=.o))

@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:41:02 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/23 22:28:39 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/25 15:07:46 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # define EATING -4
 # define SLEEPING -5
 # define TAKING_A_FORK -6
+# define DIED -7
 
 # include <stdio.h>
 # include <unistd.h>
@@ -61,7 +62,6 @@ typedef struct s_philo
 /////////////  R  O  U  T  I  N  E  ///////////////////////////////////////////
 void	*routine(void *ptr);
 int		get_time(struct timeval launch_time, struct timeval current_time);
-void	print_status(t_philo *philo, int status);
 
 /////////////  U  T  I  L  S  /////////////////////////////////////////////////
 int		p_atoi(t_stoic *data, char *s);

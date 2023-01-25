@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 13:20:42 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/23 22:23:05 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/25 14:05:50 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,31 +49,4 @@ int	p_strcmp(char *s1, char *s2)
 	while (s1[i] && s1[i] == s2[i])
 		i++;
 	return (s1[i] - s2[i]);
-}
-
-void	print_status(t_philo *philo, int status)
-{
-	gettimeofday(&philo->data->current_time, 0);
-	pthread_mutex_lock(&philo->data->lock);
-	if (status == TAKING_A_FORK)
-		printf("%d\t%d\t%s\n", get_time(philo->data->launch_time,
-				philo->data->current_time), philo->id, "has taken a fork");
-	else if (status == THINKING)
-		printf("%d\t%d\t%s\n", get_time(philo->data->launch_time,
-				philo->data->current_time), philo->id, "is thinking");
-	else if (status == EATING)
-	{
-		gettimeofday(&philo->last_meal, 0);
-		printf("%d\t%d\t%s\n", get_time(philo->data->launch_time,
-				philo->data->current_time), philo->id, "is eating");
-		usleep(philo->data->time_to_eat * 1000);
-		philo->ate_n_times++;
-	}
-	else if (status == SLEEPING)
-	{
-		printf("%d\t%d\t%s\n", get_time(philo->data->launch_time,
-				philo->data->current_time), philo->id, "is sleeping");
-		usleep(philo->data->time_to_sleep * 1000);
-	}
-	pthread_mutex_unlock(&philo->data->lock);
 }

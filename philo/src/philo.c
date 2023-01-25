@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:39:35 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/23 22:21:01 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/25 17:31:23 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ int	create_threads(t_stoic *data, t_philo *philo)
 	i = 0;
 	while (i != data->number_of_philosophers)
 	{
-		data->died = FALSE;
 		philo[i].data = data;
 		philo[i].id = i + 1;
 		philo[i].ate_n_times = 0;
@@ -83,9 +82,23 @@ It must be 4 or 5, not %d.\n", (arc - 1)), ERROR);
 	return (0);
 }
 
+// int total_finished(t_philo **philo)
+// {
+// 	int i;
+
+// 	i = 0;
+// 	while (i != philo[i]->data->number_of_philosophers)
+// 	{
+// 		if (philo[i]->ate_n_times != philo[i]->data->number_of_meals)
+// 			break ;
+// 		i++;
+// 	}
+// 	return (i);
+// }
+
 int	main(int arc, char **arv)
 {
-	t_stoic	data;
+	t_stoic data;
 	t_philo	*philo;
 
 	if (init(&data, arc, arv))
@@ -96,7 +109,12 @@ int	main(int arc, char **arv)
 	philo = malloc(sizeof(t_philo) * data.number_of_philosophers);
 	if (!philo)
 		return (pthread_mutex_destroy(&data.lock), 1);
-	create_threads(&data, philo);
+	while (TRUE)
+	{
+		// if (total_finished(&philo) == data.number_of_philosophers)
+		// 	break ;
+		create_threads(&data, philo);
+	}
 	if (pthread_mutex_destroy(&data.lock))
 		return (1);
 	free(philo);
