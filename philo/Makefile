@@ -6,7 +6,7 @@
 #    By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/13 22:08:46 by julmuntz          #+#    #+#              #
-#    Updated: 2023/01/07 20:47:13 by julmuntz         ###   ########.fr        #
+#    Updated: 2023/01/25 11:41:55 by julmuntz         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,17 +16,10 @@ SRC			=	philo.c				\
 				routine.c			\
 				time.c				\
 
-# B_SRCDIR	= 	bonus/
-# B_SRC		=	philo_bonus.c		\
-
 OBJDIR		= 	obj/
 OBJ			= 	$(addprefix $(OBJDIR), $(SRC:.c=.o))
 
-# B_OBJDIR	= 	$(OBJDIR)
-# B_OBJ		= 	$(addprefix $(B_OBJDIR), $(B_SRC:.c=.o))
-
 NAME		= 	philo
-# B_NAME		= 	philo_bonus
 
 CC			= 	cc
 RM			= 	rm -f
@@ -36,27 +29,17 @@ $(OBJDIR)%.o:	$(SRCDIR)%.c
 					@mkdir -p $(OBJDIR)
 					$(CC) $(CFLAGS) -c $< -o $@
 
-# $(B_OBJDIR)%.o:	$(B_SRCDIR)%.c
-# 					@mkdir -p $(B_OBJDIR)
-# 					$(CC) $(CFLAGS) -c $< -o $@
-
 $(NAME):		$(OBJ)
 					@$(CC) -g $^ -pthread -o $@
 
-# $(B_NAME):		$(B_OBJ)
-# 					@$(CC) -g $^ -pthread -o $@
-
-all:			$(NAME) # $(B_NAME)
-
-# bonus:			$(B_NAME)
+all:			$(NAME)
 
 clean:
 					$(RM) -r $(OBJDIR)
 
 fclean:			clean
 					$(RM) $(NAME)
-#					$(RM) $(B_NAME)
 
 re:				fclean all
 
-.PHONY:			all bonus clean fclean re
+.PHONY:			all clean fclean re
