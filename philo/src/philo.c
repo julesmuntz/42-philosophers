@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:39:35 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/25 17:31:23 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/26 00:56:38 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,22 @@ static void	invalid_argument(t_stoic *data, int id)
 	return ;
 }
 
+int	init_threads(t_philo *philo, int i, t_stoic *data)
+{
+	if (pthread_mutex_init(&philo[i].right_fork, NULL))
+		return (1);
+	if (pthread_mutex_init(&philo[i].lock, NULL))
+		return (1);
+	if (philo[i].id == data->number_of_philosophers)
+		philo[i].left_fork
+			= &philo[data->number_of_philosophers].right_fork;
+	else
+		philo[i].left_fork = &philo[i - 1].right_fork;
+	if (pthread_create(&philo[i].philosopher, NULL, &routine, &philo[i]))
+		pthread_mutex_destroy(&philo[i].right_fork);
+	return (0);
+}
+
 int	create_threads(t_stoic *data, t_philo *philo)
 {
 	int	i;
@@ -36,21 +52,18 @@ int	create_threads(t_stoic *data, t_philo *philo)
 		philo[i].data = data;
 		philo[i].id = i + 1;
 		philo[i].ate_n_times = 0;
-		if (pthread_mutex_init(&philo[i].right_fork, NULL))
+		philo[i].last_meal.tv_sec = 0;
+		if (init_threads(philo, i, data))
 			return (1);
-		if (philo[i].id == 1)
-			philo[0].left_fork
-				= &philo[data->number_of_philosophers - 1].right_fork;
-		else
-			philo[i].left_fork = &philo[i - 1].right_fork;
-		if (pthread_create(&philo[i].philosopher, NULL, &routine, &philo[i]))
-			pthread_mutex_destroy(&philo[i].right_fork);
 		i++;
 	}
-	i = 1;
+	i = -1;
 	while (++i != data->number_of_philosophers)
-		if (pthread_join(philo[i].philosopher, NULL))
-			return (1);
+	{
+		pthread_join(philo[i].philosopher, NULL);
+		pthread_mutex_destroy(&(philo[i].right_fork));
+		pthread_mutex_destroy(&(philo[i].lock));
+	}
 	return (0);
 }
 
@@ -82,40 +95,22 @@ It must be 4 or 5, not %d.\n", (arc - 1)), ERROR);
 	return (0);
 }
 
-// int total_finished(t_philo **philo)
-// {
-// 	int i;
-
-// 	i = 0;
-// 	while (i != philo[i]->data->number_of_philosophers)
-// 	{
-// 		if (philo[i]->ate_n_times != philo[i]->data->number_of_meals)
-// 			break ;
-// 		i++;
-// 	}
-// 	return (i);
-// }
-
 int	main(int arc, char **arv)
 {
-	t_stoic data;
+	t_stoic	data;
 	t_philo	*philo;
 
 	if (init(&data, arc, arv))
 		return (0);
 	gettimeofday(&data.launch_time, 0);
-	if (pthread_mutex_init(&data.lock, NULL))
-		return (1);
 	philo = malloc(sizeof(t_philo) * data.number_of_philosophers);
 	if (!philo)
-		return (pthread_mutex_destroy(&data.lock), 1);
-	while (TRUE)
-	{
-		// if (total_finished(&philo) == data.number_of_philosophers)
-		// 	break ;
-		create_threads(&data, philo);
-	}
-	if (pthread_mutex_destroy(&data.lock))
+		return (pthread_mutex_destroy(&philo->lock), 1);
+	memset(philo, 0, sizeof(t_philo) * data.number_of_philosophers);
+	if (pthread_mutex_init(&data.print_lock, NULL))
+		return (1);
+	create_threads(&data, philo);
+	if (pthread_mutex_destroy(&data.print_lock))
 		return (1);
 	free(philo);
 	return (0);

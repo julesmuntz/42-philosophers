@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/04 22:23:19 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/25 17:29:34 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/26 00:53:44 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,42 +20,35 @@ int	get_time(struct timeval launch_time, struct timeval current_time)
 			+ current_time.tv_usec + 999999 - launch_time.tv_usec) / 1000);
 }
 
-static int	print_status(t_philo *philo, int status)
+int	print_status(t_philo *philo, char *s)
 {
 	gettimeofday(&philo->data->current_time, 0);
+	pthread_mutex_lock(&philo->data->print_lock);
+	printf("%d %d %s\n", get_time(philo->data->launch_time,
+			philo->data->current_time), philo->id, s);
+	pthread_mutex_unlock(&philo->data->print_lock);
+	return (0);
+}
+
+static int	status(t_philo *philo, int status)
+{
 	if (status == THINKING)
-	{
-		pthread_mutex_lock(&philo->data->lock);
-		printf("%d %d %s\n", get_time(philo->data->launch_time,
-				philo->data->current_time), philo->id, "is thinking");
-		pthread_mutex_unlock(&philo->data->lock);
-		return (0);
-	}
-	else if (status == TAKING_A_FORK)
-	{
-		pthread_mutex_lock(&philo->data->lock);
-		printf("%d %d %s\n", get_time(philo->data->launch_time,
-				philo->data->current_time), philo->id, "has taken a fork");
-		pthread_mutex_unlock(&philo->data->lock);
-		return (0);
-	}
-	else if (status == EATING)
-	{
-		pthread_mutex_lock(&philo->data->lock);
-		gettimeofday(&philo->last_meal, 0);
-		printf("%d %d %s\n", get_time(philo->data->launch_time,
-				philo->data->current_time), philo->id, "is eating");
-		philo->ate_n_times++;
-		pthread_mutex_unlock(&philo->data->lock);
-		return (0);
-	}
+		print_status(philo, "is thinking");
 	else if (status == SLEEPING)
 	{
-		pthread_mutex_lock(&philo->data->lock);
-		printf("%d %d %s\n", get_time(philo->data->launch_time,
-				philo->data->current_time), philo->id, "is sleeping");
-		pthread_mutex_unlock(&philo->data->lock);
-		return (0);
+		print_status(philo, "is sleeping");
+		usleep(philo->data->time_to_sleep * 1000);
+	}
+	else
+	{
+		pthread_mutex_lock(&philo->lock);
+		gettimeofday(&philo->last_meal, 0);
+		pthread_mutex_unlock(&philo->lock);
+		print_status(philo, "is eating");
+		usleep(philo->data->time_to_eat * 1000);
+		pthread_mutex_lock(&philo->lock);
+		philo->ate_n_times++;
+		pthread_mutex_unlock(&philo->lock);
 	}
 	return (0);
 }
@@ -66,40 +59,47 @@ static void	take_forks(t_philo *philo)
 	{
 		pthread_mutex_lock(philo->left_fork);
 		gettimeofday(&philo->data->current_time, 0);
-		print_status(philo, TAKING_A_FORK);
+		print_status(philo, "has taken a fork");
 		pthread_mutex_lock(&philo->right_fork);
 		gettimeofday(&philo->data->current_time, 0);
-		print_status(philo, TAKING_A_FORK);
+		print_status(philo, "has taken a fork");
 	}
 	else
 	{
 		pthread_mutex_lock(&philo->right_fork);
 		gettimeofday(&philo->data->current_time, 0);
-		print_status(philo, TAKING_A_FORK);
+		print_status(philo, "has taken a fork");
 		pthread_mutex_lock(philo->left_fork);
 		gettimeofday(&philo->data->current_time, 0);
-		print_status(philo, TAKING_A_FORK);
+		print_status(philo, "has taken a fork");
 	}
 }
 
 void	*routine(void *ptr)
 {
-	t_philo *philo;
+	t_philo	*philo;
 
 	philo = (t_philo *)ptr;
+	philo->data->delay = FALSE;
+	pthread_mutex_lock(&philo->lock);
 	gettimeofday(&philo->last_meal, 0);
+	pthread_mutex_unlock(&philo->lock);
 	if (philo->id % 2 == 0)
 	{
-		print_status(philo, THINKING);
-		usleep(1000);
+		status(philo, THINKING);
+		usleep(philo->data->time_to_eat * 1000);
+	}
+	else if (philo->id == 1 && philo->data->delay == FALSE)
+	{
+		philo->data->delay = TRUE;
+		status(philo, THINKING);
+		usleep(philo->data->time_to_eat * 2000);
 	}
 	take_forks(philo);
-	print_status(philo, EATING);
-	usleep(philo->data->time_to_eat * 1000);
-	pthread_mutex_unlock(philo->left_fork);
+	status(philo, EATING);
 	pthread_mutex_unlock(&philo->right_fork);
-	print_status(philo, SLEEPING);
-	usleep(philo->data->time_to_sleep * 1000);
-	print_status(philo, THINKING);
+	pthread_mutex_unlock(philo->left_fork);
+	status(philo, SLEEPING);
+	status(philo, THINKING);
 	return (NULL);
 }

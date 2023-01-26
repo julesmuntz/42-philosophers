@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:41:02 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/25 15:07:46 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/26 00:47:03 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@
 # include <sys/time.h>
 # include <pthread.h>
 # include <string.h>
+# include <stdbool.h>
 
 typedef struct s_stoic
 {
@@ -40,10 +41,10 @@ typedef struct s_stoic
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				number_of_meals;
-	pthread_mutex_t	lock;
 	char			*error;
 	int				stops;
-	int				died;
+	int				delay;
+	pthread_mutex_t	print_lock;
 	struct timeval	launch_time;
 	struct timeval	current_time;
 }	t_stoic;
@@ -55,6 +56,7 @@ typedef struct s_philo
 	int				id;
 	int				ate_n_times;
 	struct timeval	last_meal;
+	pthread_mutex_t	lock;
 	pthread_mutex_t	right_fork;
 	pthread_mutex_t	*left_fork;
 }	t_philo;
@@ -62,6 +64,9 @@ typedef struct s_philo
 /////////////  R  O  U  T  I  N  E  ///////////////////////////////////////////
 void	*routine(void *ptr);
 int		get_time(struct timeval launch_time, struct timeval current_time);
+void	check(t_philo *philo, t_stoic *data);
+int		print_status(t_philo *philo, char *s);
+void	join_threads(t_philo *philo, int i);
 
 /////////////  U  T  I  L  S  /////////////////////////////////////////////////
 int		p_atoi(t_stoic *data, char *s);
