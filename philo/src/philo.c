@@ -6,43 +6,55 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 11:39:35 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/26 00:56:38 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/26 18:55:14 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static void	invalid_argument(t_stoic *data, int id)
+static void	join_threads(t_philo *philo, int current)
 {
-	if (data->stops == FALSE)
-		printf("Error\n");
-	if (p_strcmp(data->error, "Less than 1") == 0)
-		printf("The value of Argument %d is less than 1.\n", id);
-	else if (p_strcmp(data->error, "Integer overflow") == 0)
-		printf("The value of Argument %d exceeds the INT_MAX.\n", id);
-	else if (p_strcmp(data->error, "Not a number") == 0)
-		printf("The input of Argument %d is an invalid value.\n", id);
-	data->stops = TRUE;
-	return ;
+	int	i;
+
+	i = 0;
+	while (i < current)
+	{
+		pthread_join(philo[i].philosopher, NULL);
+		pthread_mutex_destroy(&philo[i].left_fork);
+		pthread_mutex_destroy(&philo[i].lock);
+		i++;
+	}
 }
 
-int	init_threads(t_philo *philo, int i, t_stoic *data)
+static int	init_threads(t_philo *philo, int current, t_stoic *data)
 {
-	if (pthread_mutex_init(&philo[i].right_fork, NULL))
-		return (1);
-	if (pthread_mutex_init(&philo[i].lock, NULL))
-		return (1);
-	if (philo[i].id == data->number_of_philosophers)
-		philo[i].left_fork
-			= &philo[data->number_of_philosophers].right_fork;
+	if (pthread_mutex_init(&philo[current].left_fork, NULL))
+		var_is(EDITED, &data->check_lock, &data->failure, TRUE);
+	if (philo[current].id == data->number_of_philosophers)
+		philo[current].right_fork = &philo[0].left_fork;
 	else
-		philo[i].left_fork = &philo[i - 1].right_fork;
-	if (pthread_create(&philo[i].philosopher, NULL, &routine, &philo[i]))
-		pthread_mutex_destroy(&philo[i].right_fork);
+		philo[current].right_fork = &philo[current + 1].left_fork;
+	if (pthread_mutex_init(&philo[current].lock, NULL))
+	{
+		var_is(EDITED, &data->check_lock, &data->failure, TRUE);
+		pthread_mutex_destroy(&philo[current].left_fork);
+	}
+	if (pthread_create(&philo[current].philosopher, NULL, &routine,
+			&philo[current]) && data->failure == FALSE)
+	{
+		var_is(EDITED, &data->check_lock, &data->failure, TRUE);
+		pthread_mutex_destroy(&philo[current].left_fork);
+		pthread_mutex_destroy(&philo[current].lock);
+	}
+	if (data->failure == TRUE)
+	{
+		join_threads(philo, current);
+		return (1);
+	}
 	return (0);
 }
 
-int	create_threads(t_stoic *data, t_philo *philo)
+static int	create_threads(t_stoic *data, t_philo *philo)
 {
 	int	i;
 
@@ -57,17 +69,10 @@ int	create_threads(t_stoic *data, t_philo *philo)
 			return (1);
 		i++;
 	}
-	i = -1;
-	while (++i != data->number_of_philosophers)
-	{
-		pthread_join(philo[i].philosopher, NULL);
-		pthread_mutex_destroy(&(philo[i].right_fork));
-		pthread_mutex_destroy(&(philo[i].lock));
-	}
 	return (0);
 }
 
-int	init(t_stoic *data, int arc, char **arv)
+static int	init(t_stoic *data, int arc, char **arv)
 {
 	int	i;
 
@@ -92,6 +97,7 @@ It must be 4 or 5, not %d.\n", (arc - 1)), ERROR);
 	data->number_of_meals = -1;
 	if (arc == 6)
 		data->number_of_meals = p_atoi(data, arv[5]);
+	init_vars(data);
 	return (0);
 }
 
@@ -102,16 +108,23 @@ int	main(int arc, char **arv)
 
 	if (init(&data, arc, arv))
 		return (0);
-	gettimeofday(&data.launch_time, 0);
-	philo = malloc(sizeof(t_philo) * data.number_of_philosophers);
-	if (!philo)
-		return (pthread_mutex_destroy(&philo->lock), 1);
-	memset(philo, 0, sizeof(t_philo) * data.number_of_philosophers);
 	if (pthread_mutex_init(&data.print_lock, NULL))
 		return (1);
-	create_threads(&data, philo);
-	if (pthread_mutex_destroy(&data.print_lock))
-		return (1);
+	if (pthread_mutex_init(&data.check_lock, NULL))
+		return (pthread_mutex_destroy(&data.print_lock), 1);
+	philo = malloc(sizeof(t_philo) * data.number_of_philosophers);
+	if (!philo)
+		return (pthread_mutex_destroy(&data.print_lock),
+			pthread_mutex_destroy(&data.check_lock), 1);
+	if (create_threads(&data, philo))
+		return (pthread_mutex_destroy(&data.print_lock),
+			pthread_mutex_destroy(&data.check_lock), 1);
+	gettimeofday(&data.launch_time, NULL);
+	var_is(EDITED, &data.check_lock, &data.launch, TRUE);
+	life_check(philo, &data);
+	join_threads(philo, data.number_of_philosophers);
+	pthread_mutex_destroy(&data.print_lock);
+	pthread_mutex_destroy(&data.check_lock);
 	free(philo);
 	return (0);
 }

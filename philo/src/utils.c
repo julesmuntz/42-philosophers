@@ -6,11 +6,25 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/15 13:20:42 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/25 14:05:50 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/26 18:55:14 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+
+void	invalid_argument(t_stoic *data, int id)
+{
+	if (data->stops == FALSE)
+		printf("Error\n");
+	if (p_strcmp(data->error, "Less than 1") == 0)
+		printf("The value of Argument %d is less than 1.\n", id);
+	else if (p_strcmp(data->error, "Integer overflow") == 0)
+		printf("The value of Argument %d exceeds the INT_MAX.\n", id);
+	else if (p_strcmp(data->error, "Not a number") == 0)
+		printf("The input of Argument %d is an invalid value.\n", id);
+	data->stops = TRUE;
+	return ;
+}
 
 int	p_atoi(t_stoic *data, char *s)
 {
@@ -49,4 +63,31 @@ int	p_strcmp(char *s1, char *s2)
 	while (s1[i] && s1[i] == s2[i])
 		i++;
 	return (s1[i] - s2[i]);
+}
+
+void	init_vars(t_stoic *data)
+{
+	data->launch = FALSE;
+	data->failure = FALSE;
+	data->working = TRUE;
+}
+
+int	var_is(int function, pthread_mutex_t *lock, int *value, int new)
+{
+	int	temp;
+
+	if (function == EDITED)
+	{
+		pthread_mutex_lock(lock);
+		*value = new;
+		pthread_mutex_unlock(lock);
+	}
+	else if (function == CHECKED)
+	{
+		pthread_mutex_lock(lock);
+		temp = *value;
+		pthread_mutex_unlock(lock);
+		return (temp);
+	}
+	return (0);
 }
