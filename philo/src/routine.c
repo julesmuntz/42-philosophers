@@ -6,7 +6,7 @@
 /*   By: julmuntz <julmuntz@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/04 22:23:19 by julmuntz          #+#    #+#             */
-/*   Updated: 2023/01/26 18:55:14 by julmuntz         ###   ########.fr       */
+/*   Updated: 2023/01/27 08:52:56 by julmuntz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,28 +24,35 @@ void	print_status(t_philo *philo, char *s)
 	pthread_mutex_unlock(&philo->data->print_lock);
 }
 
+static void	eat(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->lock);
+	gettimeofday(&philo->last_meal, NULL);
+	pthread_mutex_unlock(&philo->lock);
+	print_status(philo, "is eating");
+	usleep(philo->data->time_to_eat * 1000);
+	pthread_mutex_lock(&philo->lock);
+	philo->ate_n_times++;
+	pthread_mutex_unlock(&philo->lock);
+}
+
 static int	status(t_philo *philo, int status)
 {
 	if (var_is(CHECKED, &philo->data->check_lock, &philo->data->working, 0))
 	{
 		if (status == THINKING)
+		{
 			print_status(philo, "is thinking");
+			usleep(((philo->data->time_to_die - (philo->data->time_to_eat \
+			+ philo->data->time_to_sleep)) / 2) * 1000);
+		}
 		else if (status == SLEEPING)
 		{
 			print_status(philo, "is sleeping");
 			usleep(philo->data->time_to_sleep * 1000);
 		}
 		else
-		{
-			pthread_mutex_lock(&philo->lock);
-			gettimeofday(&philo->last_meal, NULL);
-			pthread_mutex_unlock(&philo->lock);
-			print_status(philo, "is eating");
-			usleep(philo->data->time_to_eat * 1000);
-			pthread_mutex_lock(&philo->lock);
-			philo->ate_n_times++;
-			pthread_mutex_unlock(&philo->lock);
-		}
+			eat(philo);
 	}
 	return (0);
 }
